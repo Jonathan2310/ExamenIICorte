@@ -1,98 +1,97 @@
-import re
+import ply.lex as lex
 
-def analizar_codigo(codigo):
-    reservadas = ["package", "import", "func"]
-    operadores = ["+", "=", "*", "/", "-", "."]
-    parentesis_abre = ["("]
-    parentesis_cierra = [")"]
-    llaves_abre = ["{"]
-    llaves_cierra = ["}"]
-    comillas_dobles = ["\""]
-    punto_y_coma = [";"]
-    identificadores = []
-    numeros = re.compile(r'\b\d+\b')
-
-    tokens_totales = []
-    lineas = codigo.split("\n")
-
-    for num_linea, linea in enumerate(lineas, start=1):
-        tokens_linea = []
-
-        # Buscar palabras reservadas
-        for token in reservadas:
-            matches = re.findall(r"\b{}\b".format(token), linea)
-            for match in matches:
-                tokens_linea.append((num_linea, match, "Palabra reservada"))
-
-        # Buscar operadores
-        for token in operadores:
-            matches = linea.count(token)
-            for _ in range(matches):
-                tokens_linea.append((num_linea, token, "Operador"))
-
-        # Buscar paréntesis izquierdos
-        for token in parentesis_abre:
-            matches = linea.count(token)
-            for _ in range(matches):
-                tokens_linea.append((num_linea, token, "Paréntesis izquierdo"))
-
-        # Buscar paréntesis derechos
-        for token in parentesis_cierra:
-            matches = linea.count(token)
-            for _ in range(matches):
-                tokens_linea.append((num_linea, token, "Paréntesis derecho"))
-
-        # Buscar llaves izquierdas
-        for token in llaves_abre:
-            matches = linea.count(token)
-            for _ in range(matches):
-                tokens_linea.append((num_linea, token, "Llave izquierda"))
-
-        # Buscar llaves derechas
-        for token in llaves_cierra:
-            matches = linea.count(token)
-            for _ in range(matches):
-                tokens_linea.append((num_linea, token, "Llave derecha"))
-
-        # Buscar comillas dobles
-        for token in comillas_dobles:
-            matches = linea.count(token)
-            for _ in range(matches):
-                tokens_linea.append((num_linea, token, "Comillas dobles"))
-
-        # Buscar punto y coma
-        for token in punto_y_coma:
-            matches = linea.count(token)
-            for _ in range(matches):
-                tokens_linea.append((num_linea, token, "Punto y coma"))
-
-        # Buscar números
-        matches = numeros.findall(linea)
-        for match in matches:
-            tokens_linea.append((num_linea, match, "Número"))
-
-        # Buscar identificadores y clasificarlos correctamente
-        identificadores_en_linea = re.findall(r"\b[a-zA-Z_][a-zA-Z0-9_]*\b", linea)
-        for identificador in identificadores_en_linea:
-            if identificador in reservadas:
-                tokens_linea.append((num_linea, identificador, "Palabra reservada"))
-            else:
-                tokens_linea.append((num_linea, identificador, "Identificador"))
-
-        tokens_totales.extend(tokens_linea)
-    
-    return tokens_totales
-
-codigo_go = '''
-package main
-
-import "fmt"
-
-func main() {
-    fmt.Println("Hola Mundo")
+# Definir las palabras reservadas
+reserved = {
+    'int': 'INT',
+    'DO': 'DO',
+    'ENDDO': 'ENDDO',
+    'WHILE': 'WHILE',
+    'ENDWHILE': 'ENDWHILE'
 }
-'''
 
-tokens = analizar_codigo(codigo_go)
-for token in tokens:
-    print(token)
+# Lista de tokens
+tokens = [
+    'NUMERO', 'IDENTIFICADOR',
+    'IGUAL', 'MAS', 'PUNTOYCOMA',
+    'PARENTESIS_IZQ', 'PARENTESIS_DER',
+    'ASTERISCO', 'IGUAL_IGUAL'
+] + list(reserved.values())
+
+# Expresiones regulares para tokens simples
+t_IGUAL = r'='
+t_MAS = r'\+'
+t_PUNTOYCOMA = r';'
+t_PARENTESIS_IZQ = r'\('
+t_PARENTESIS_DER = r'\)'
+t_ASTERISCO = r'\*'
+t_IGUAL_IGUAL = r'=='
+
+# Ignorar espacios y tabulaciones
+t_ignore = ' \t'
+
+# Definir reglas para tokens complejos
+def t_IDENTIFICADOR(t):
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reserved.get(t.value, 'IDENTIFICADOR')
+    return t
+
+def t_NUMERO(t):
+    r'\d+'
+    t.value = int(t.value)
+    return t
+
+# Manejar nueva línea
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += len(t.value)
+
+# Manejar errores
+def t_error(t):
+    print(f"Illegal character '{t.value[0]}'")
+    t.lexer.skip(1)
+
+# Construir el lexer
+lexer = lex.lex()
+
+# Función para analizar el código
+def analizar_codigo(codigo):
+    lexer.input(codigo)
+    tokens = []
+    counts = {
+        'tokens': 0,
+        'palabras_reservadas': 0,
+        'ids': 0,
+        'simbolos': 0
+    }
+    while True:
+        tok = lexer.token()
+        if not tok:
+            break
+        tokens.append((tok.lineno, tok.value, tok.type))
+        counts['tokens'] += 1
+        if tok.type in reserved.values():
+            counts['palabras_reservadas'] += 1
+        elif tok.type == 'IDENTIFICADOR':
+            counts['ids'] += 1
+        else:
+            counts['simbolos'] += 1
+    return tokens, counts
+
+# Ejemplo de uso
+if __name__ == "__main__":
+    codigo = """
+    int a=0;
+    int b=10;
+    int c=0;
+    DO 
+        a=3*b;
+        c=2+a;
+    ENDDO
+    WHILE (int x==2)
+    ENDWHILE
+    """
+
+    tokens, counts = analizar_codigo(codigo)
+    for token in tokens:
+        print(token)
+    print(f"Counts: {counts}")

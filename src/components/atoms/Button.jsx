@@ -11,7 +11,7 @@ const StyledButton = styled.button`
     cursor: pointer;
     border: 1px solid #f4efed;
     border-radius: 10px;
-    width: 18em;
+    width: 11em;
     height: 3.5em;
 
     &:hover {

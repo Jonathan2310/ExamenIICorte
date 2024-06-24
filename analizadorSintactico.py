@@ -1,72 +1,74 @@
-import re
+import ply.yacc as yacc
+from analizadorLexico import tokens, lexer
 
+# Reglas
+def p_programa(p):
+    '''programa : declaraciones DO instrucciones ENDDO WHILE PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE'''
+    if reservedWords.index('DO') >= reservedWords.index('ENDDO') or \
+       reservedWords.index('ENDDO') >= reservedWords.index('WHILE') or \
+       reservedWords.index('WHILE') >= reservedWords.index('ENDWHILE'):
+        raise SyntaxError(f"Error de orden en las palabras reservadas: {p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {p[6]} {p[7]} {p[8]} {p[9]}")
+    pass
+
+def p_declaraciones(p):
+    '''declaraciones : declaracion
+                     | declaracion declaraciones'''
+    pass
+
+def p_declaracion(p):
+    '''declaracion : INT IDENTIFICADOR IGUAL NUMERO PUNTOYCOMA'''
+    pass
+
+def p_instrucciones(p):
+    '''instrucciones : instruccion
+                     | instruccion instrucciones'''
+    pass
+
+def p_instruccion(p):
+    '''instruccion : IDENTIFICADOR IGUAL expresion PUNTOYCOMA'''
+    pass
+
+def p_expresion(p):
+    '''expresion : termino
+                 | termino MAS expresion'''
+    pass
+
+def p_termino(p):
+    '''termino : factor
+               | factor ASTERISCO termino'''
+    pass
+
+def p_factor(p):
+    '''factor : NUMERO
+              | IDENTIFICADOR'''
+    pass
+
+def p_condicion(p):
+    '''condicion : INT IDENTIFICADOR IGUAL_IGUAL NUMERO'''
+    pass
+
+def p_error(p):
+    raise SyntaxError(f"Syntax error '{p.value}', linea {p.lineno}")
+
+# Construir el parser
+parser = yacc.yacc()
+
+# Función para analizar la sintaxis
 def analizar_sintaxis(codigo):
-    lineas = codigo.split("\n")
     errores = []
-    pila_llaves = []
+    lexer.input(codigo)
+    
+    while True:
+        tok = lexer.token()
+        if not tok:
+            break
 
-    # Lista de palabras reservadas y componentes clave en Go
-    palabras_reservadas = ["package", "import", "func", "main", "fmt", "Println"]
-    operadores = ["+", "=", "*", "/", "-", "."]
-    simbolos = ["(", ")", "{", "}", "\""]
+    try:
+        parser.parse(codigo, tracking=True)
+    except Exception as e:
+        errores.append(str(e))
 
-    for num_linea, linea in enumerate(lineas, start=1):
-        stripped_linea = linea.strip()
+    return errores if errores else ["Sintaxis correcta"]
 
-        # Verificar saltos de línea y espacios en blanco
-        if not stripped_linea:
-            continue
-
-        # Verificar comillas dobles balanceadas
-        if stripped_linea.count('"') % 2 != 0:
-            errores.append((num_linea, stripped_linea, "Error: comillas desbalanceadas"))
-            continue
-
-        # Verificar paréntesis balanceados
-        if stripped_linea.count('(') != stripped_linea.count(')'):
-            errores.append((num_linea, stripped_linea, "Error: paréntesis desbalanceados"))
-            continue
-
-        # Verificar llaves balanceadas
-        for char in stripped_linea:
-            if char == '{':
-                pila_llaves.append('{')
-            elif char == '}':
-                if pila_llaves and pila_llaves[-1] == '{':
-                    pila_llaves.pop()
-                else:
-                    errores.append((num_linea, stripped_linea, "Error sintáctico: llave de cierre '}' sin llave de apertura correspondiente"))
-
-        # Extraer y omitir cadenas literales para análisis de palabras reservadas
-        stripped_linea_sin_cadenas = stripped_linea
-        cadenas = re.findall(r'"[^"]*"', stripped_linea)
-        for cadena in cadenas:
-            stripped_linea_sin_cadenas = stripped_linea_sin_cadenas.replace(cadena, '""')
-
-        # Verificar palabra por palabra
-        palabras = re.findall(r'\b\w+\b', stripped_linea_sin_cadenas)
-        for palabra in palabras:
-            if palabra not in palabras_reservadas and not any(op in palabra for op in operadores) and palabra not in simbolos:
-                errores.append((num_linea, stripped_linea, f"Error sintáctico: '{palabra}' mal escrita o inesperada"))
-
-        # Verificar la estructura completa de la línea
-        if re.match(r'^package\s+main$', stripped_linea):
-            continue
-        elif re.match(r'^import\s+"fmt"$', stripped_linea):
-            continue
-        elif re.match(r'^func\s+main\(\)\s+\{', stripped_linea):
-            continue
-        elif re.match(r'^fmt\.Println\(".*"\)$', stripped_linea):
-            continue
-        elif re.match(r'^\}$', stripped_linea):
-            continue
-        else:
-            errores.append((num_linea, stripped_linea, "Error sintáctico: estructura de línea incorrecta"))
-
-    if pila_llaves:
-        errores.append((num_linea, "", "Error sintáctico: llave de apertura '{' sin llave de cierre correspondiente"))
-
-    if errores:
-        return errores
-    else:
-        return "Sintaxis correcta"
+# Lista de palabras reservadas en el orden requerido
+reservedWords = ['INT', 'DO', 'ENDDO', 'WHILE', 'ENDWHILE']

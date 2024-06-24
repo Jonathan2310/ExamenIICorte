@@ -1,0 +1,384 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> programa
+Rule 1     programa -> declaraciones DO instrucciones ENDDO WHILE PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE
+Rule 2     declaraciones -> declaracion
+Rule 3     declaraciones -> declaracion declaraciones
+Rule 4     declaracion -> tipo IDENTIFICADOR IGUAL NUMERO PUNTOYCOMA
+Rule 5     instrucciones -> instruccion
+Rule 6     instrucciones -> instruccion instrucciones
+Rule 7     instruccion -> IDENTIFICADOR IGUAL expresion PUNTOYCOMA
+Rule 8     expresion -> termino
+Rule 9     expresion -> termino MAS expresion
+Rule 10    termino -> factor
+Rule 11    termino -> factor ASTERISCO termino
+Rule 12    factor -> NUMERO
+Rule 13    factor -> IDENTIFICADOR
+Rule 14    condicion -> tipo IDENTIFICADOR IGUAL_IGUAL NUMERO
+Rule 15    tipo -> INT
+
+Terminals, with rules where they appear
+
+ASTERISCO            : 11
+DO                   : 1
+ENDDO                : 1
+ENDWHILE             : 1
+IDENTIFICADOR        : 4 7 13 14
+IGUAL                : 4 7
+IGUAL_IGUAL          : 14
+INT                  : 15
+MAS                  : 9
+NUMERO               : 4 12 14
+PARENTESIS_DER       : 1
+PARENTESIS_IZQ       : 1
+PUNTOYCOMA           : 4 7
+WHILE                : 1
+error                : 
+
+Nonterminals, with rules where they appear
+
+condicion            : 1
+declaracion          : 2 3
+declaraciones        : 1 3
+expresion            : 7 9
+factor               : 10 11
+instruccion          : 5 6
+instrucciones        : 1 6
+programa             : 0
+termino              : 8 9 11
+tipo                 : 4 14
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . programa
+    (1) programa -> . declaraciones DO instrucciones ENDDO WHILE PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE
+    (2) declaraciones -> . declaracion
+    (3) declaraciones -> . declaracion declaraciones
+    (4) declaracion -> . tipo IDENTIFICADOR IGUAL NUMERO PUNTOYCOMA
+    (15) tipo -> . INT
+
+    INT             shift and go to state 5
+
+    programa                       shift and go to state 1
+    declaraciones                  shift and go to state 2
+    declaracion                    shift and go to state 3
+    tipo                           shift and go to state 4
+
+state 1
+
+    (0) S' -> programa .
+
+
+
+state 2
+
+    (1) programa -> declaraciones . DO instrucciones ENDDO WHILE PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE
+
+    DO              shift and go to state 6
+
+
+state 3
+
+    (2) declaraciones -> declaracion .
+    (3) declaraciones -> declaracion . declaraciones
+    (2) declaraciones -> . declaracion
+    (3) declaraciones -> . declaracion declaraciones
+    (4) declaracion -> . tipo IDENTIFICADOR IGUAL NUMERO PUNTOYCOMA
+    (15) tipo -> . INT
+
+    DO              reduce using rule 2 (declaraciones -> declaracion .)
+    INT             shift and go to state 5
+
+    declaracion                    shift and go to state 3
+    declaraciones                  shift and go to state 7
+    tipo                           shift and go to state 4
+
+state 4
+
+    (4) declaracion -> tipo . IDENTIFICADOR IGUAL NUMERO PUNTOYCOMA
+
+    IDENTIFICADOR   shift and go to state 8
+
+
+state 5
+
+    (15) tipo -> INT .
+
+    IDENTIFICADOR   reduce using rule 15 (tipo -> INT .)
+
+
+state 6
+
+    (1) programa -> declaraciones DO . instrucciones ENDDO WHILE PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE
+    (5) instrucciones -> . instruccion
+    (6) instrucciones -> . instruccion instrucciones
+    (7) instruccion -> . IDENTIFICADOR IGUAL expresion PUNTOYCOMA
+
+    IDENTIFICADOR   shift and go to state 11
+
+    instrucciones                  shift and go to state 9
+    instruccion                    shift and go to state 10
+
+state 7
+
+    (3) declaraciones -> declaracion declaraciones .
+
+    DO              reduce using rule 3 (declaraciones -> declaracion declaraciones .)
+
+
+state 8
+
+    (4) declaracion -> tipo IDENTIFICADOR . IGUAL NUMERO PUNTOYCOMA
+
+    IGUAL           shift and go to state 12
+
+
+state 9
+
+    (1) programa -> declaraciones DO instrucciones . ENDDO WHILE PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE
+
+    ENDDO           shift and go to state 13
+
+
+state 10
+
+    (5) instrucciones -> instruccion .
+    (6) instrucciones -> instruccion . instrucciones
+    (5) instrucciones -> . instruccion
+    (6) instrucciones -> . instruccion instrucciones
+    (7) instruccion -> . IDENTIFICADOR IGUAL expresion PUNTOYCOMA
+
+    ENDDO           reduce using rule 5 (instrucciones -> instruccion .)
+    IDENTIFICADOR   shift and go to state 11
+
+    instruccion                    shift and go to state 10
+    instrucciones                  shift and go to state 14
+
+state 11
+
+    (7) instruccion -> IDENTIFICADOR . IGUAL expresion PUNTOYCOMA
+
+    IGUAL           shift and go to state 15
+
+
+state 12
+
+    (4) declaracion -> tipo IDENTIFICADOR IGUAL . NUMERO PUNTOYCOMA
+
+    NUMERO          shift and go to state 16
+
+
+state 13
+
+    (1) programa -> declaraciones DO instrucciones ENDDO . WHILE PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE
+
+    WHILE           shift and go to state 17
+
+
+state 14
+
+    (6) instrucciones -> instruccion instrucciones .
+
+    ENDDO           reduce using rule 6 (instrucciones -> instruccion instrucciones .)
+
+
+state 15
+
+    (7) instruccion -> IDENTIFICADOR IGUAL . expresion PUNTOYCOMA
+    (8) expresion -> . termino
+    (9) expresion -> . termino MAS expresion
+    (10) termino -> . factor
+    (11) termino -> . factor ASTERISCO termino
+    (12) factor -> . NUMERO
+    (13) factor -> . IDENTIFICADOR
+
+    NUMERO          shift and go to state 22
+    IDENTIFICADOR   shift and go to state 18
+
+    expresion                      shift and go to state 19
+    termino                        shift and go to state 20
+    factor                         shift and go to state 21
+
+state 16
+
+    (4) declaracion -> tipo IDENTIFICADOR IGUAL NUMERO . PUNTOYCOMA
+
+    PUNTOYCOMA      shift and go to state 23
+
+
+state 17
+
+    (1) programa -> declaraciones DO instrucciones ENDDO WHILE . PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE
+
+    PARENTESIS_IZQ  shift and go to state 24
+
+
+state 18
+
+    (13) factor -> IDENTIFICADOR .
+
+    ASTERISCO       reduce using rule 13 (factor -> IDENTIFICADOR .)
+    MAS             reduce using rule 13 (factor -> IDENTIFICADOR .)
+    PUNTOYCOMA      reduce using rule 13 (factor -> IDENTIFICADOR .)
+
+
+state 19
+
+    (7) instruccion -> IDENTIFICADOR IGUAL expresion . PUNTOYCOMA
+
+    PUNTOYCOMA      shift and go to state 25
+
+
+state 20
+
+    (8) expresion -> termino .
+    (9) expresion -> termino . MAS expresion
+
+    PUNTOYCOMA      reduce using rule 8 (expresion -> termino .)
+    MAS             shift and go to state 26
+
+
+state 21
+
+    (10) termino -> factor .
+    (11) termino -> factor . ASTERISCO termino
+
+    MAS             reduce using rule 10 (termino -> factor .)
+    PUNTOYCOMA      reduce using rule 10 (termino -> factor .)
+    ASTERISCO       shift and go to state 27
+
+
+state 22
+
+    (12) factor -> NUMERO .
+
+    ASTERISCO       reduce using rule 12 (factor -> NUMERO .)
+    MAS             reduce using rule 12 (factor -> NUMERO .)
+    PUNTOYCOMA      reduce using rule 12 (factor -> NUMERO .)
+
+
+state 23
+
+    (4) declaracion -> tipo IDENTIFICADOR IGUAL NUMERO PUNTOYCOMA .
+
+    INT             reduce using rule 4 (declaracion -> tipo IDENTIFICADOR IGUAL NUMERO PUNTOYCOMA .)
+    DO              reduce using rule 4 (declaracion -> tipo IDENTIFICADOR IGUAL NUMERO PUNTOYCOMA .)
+
+
+state 24
+
+    (1) programa -> declaraciones DO instrucciones ENDDO WHILE PARENTESIS_IZQ . condicion PARENTESIS_DER ENDWHILE
+    (14) condicion -> . tipo IDENTIFICADOR IGUAL_IGUAL NUMERO
+    (15) tipo -> . INT
+
+    INT             shift and go to state 5
+
+    condicion                      shift and go to state 28
+    tipo                           shift and go to state 29
+
+state 25
+
+    (7) instruccion -> IDENTIFICADOR IGUAL expresion PUNTOYCOMA .
+
+    IDENTIFICADOR   reduce using rule 7 (instruccion -> IDENTIFICADOR IGUAL expresion PUNTOYCOMA .)
+    ENDDO           reduce using rule 7 (instruccion -> IDENTIFICADOR IGUAL expresion PUNTOYCOMA .)
+
+
+state 26
+
+    (9) expresion -> termino MAS . expresion
+    (8) expresion -> . termino
+    (9) expresion -> . termino MAS expresion
+    (10) termino -> . factor
+    (11) termino -> . factor ASTERISCO termino
+    (12) factor -> . NUMERO
+    (13) factor -> . IDENTIFICADOR
+
+    NUMERO          shift and go to state 22
+    IDENTIFICADOR   shift and go to state 18
+
+    termino                        shift and go to state 20
+    expresion                      shift and go to state 30
+    factor                         shift and go to state 21
+
+state 27
+
+    (11) termino -> factor ASTERISCO . termino
+    (10) termino -> . factor
+    (11) termino -> . factor ASTERISCO termino
+    (12) factor -> . NUMERO
+    (13) factor -> . IDENTIFICADOR
+
+    NUMERO          shift and go to state 22
+    IDENTIFICADOR   shift and go to state 18
+
+    factor                         shift and go to state 21
+    termino                        shift and go to state 31
+
+state 28
+
+    (1) programa -> declaraciones DO instrucciones ENDDO WHILE PARENTESIS_IZQ condicion . PARENTESIS_DER ENDWHILE
+
+    PARENTESIS_DER  shift and go to state 32
+
+
+state 29
+
+    (14) condicion -> tipo . IDENTIFICADOR IGUAL_IGUAL NUMERO
+
+    IDENTIFICADOR   shift and go to state 33
+
+
+state 30
+
+    (9) expresion -> termino MAS expresion .
+
+    PUNTOYCOMA      reduce using rule 9 (expresion -> termino MAS expresion .)
+
+
+state 31
+
+    (11) termino -> factor ASTERISCO termino .
+
+    MAS             reduce using rule 11 (termino -> factor ASTERISCO termino .)
+    PUNTOYCOMA      reduce using rule 11 (termino -> factor ASTERISCO termino .)
+
+
+state 32
+
+    (1) programa -> declaraciones DO instrucciones ENDDO WHILE PARENTESIS_IZQ condicion PARENTESIS_DER . ENDWHILE
+
+    ENDWHILE        shift and go to state 34
+
+
+state 33
+
+    (14) condicion -> tipo IDENTIFICADOR . IGUAL_IGUAL NUMERO
+
+    IGUAL_IGUAL     shift and go to state 35
+
+
+state 34
+
+    (1) programa -> declaraciones DO instrucciones ENDDO WHILE PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE .
+
+    $end            reduce using rule 1 (programa -> declaraciones DO instrucciones ENDDO WHILE PARENTESIS_IZQ condicion PARENTESIS_DER ENDWHILE .)
+
+
+state 35
+
+    (14) condicion -> tipo IDENTIFICADOR IGUAL_IGUAL . NUMERO
+
+    NUMERO          shift and go to state 36
+
+
+state 36
+
+    (14) condicion -> tipo IDENTIFICADOR IGUAL_IGUAL NUMERO .
+
+    PARENTESIS_DER  reduce using rule 14 (condicion -> tipo IDENTIFICADOR IGUAL_IGUAL NUMERO .)
+
